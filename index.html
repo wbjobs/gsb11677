@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebNN 神经网络推理与性能对照</title>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>WebNN 推理 Demo：Conv → Pool → FC</h1>
+    <p class="subtitle">
+      模型: Conv2D(1→4, 3×3) + ReLU → MaxPool2D(2×2) → Flatten → Gemm(784→10) → Softmax
+      ｜ 后端: WebNN / WebGPU / 纯 JS ｜ 推理在 Web Worker 中执行
+    </p>
+  </header>
+
+  <section class="panel status-panel">
+    <div class="status-item">WebNN <span id="cap-webnn" class="badge">检测中</span></div>
+    <div class="status-item">WebGPU <span id="cap-webgpu" class="badge">检测中</span></div>
+    <div class="status-item">Worker <span id="cap-worker" class="badge">检测中</span></div>
+    <div class="status-item">主线程 FPS <span id="fps" class="badge badge-ok">-</span></div>
+    <div class="status-item">长任务 <span id="longtask" class="badge badge-ok">0 个</span></div>
+    <div class="status-item">最近 measure <span id="lastMeasure" class="badge">-</span></div>
+    <canvas id="spinner" class="spinner" title="主线程活跃指示"></canvas>
+  </section>
+
+  <section class="panel controls">
+    <label>后端
+      <select id="backendSelect">
+        <option value="auto" selected>自动 (WebNN→WebGPU→JS)</option>
+        <option value="webnn">WebNN</option>
+        <option value="webgpu">WebGPU</option>
+        <option value="js">纯 JS</option>
+      </select>
+    </label>
+    <label>WebNN 设备
+      <select id="deviceSelect">
+        <option value="gpu" selected>GPU</option>
+        <option value="cpu">CPU</option>
+        <option value="npu">NPU</option>
+      </select>
+    </label>
+    <label>迭代次数
+      <input id="itersInput" type="number" value="50" min="1" max="2000" />
+    </label>
+    <label class="chk">
+      <input id="injectChk" type="checkbox" /> 注入模拟推理失败(验证重试)
+    </label>
+    <div class="buttons">
+      <button id="runBtn">运行推理</button>
+      <button id="benchBtn">性能对照 (全部后端)</button>
+      <button id="probeBtn">探测 WebNN 算子支持</button>
+      <button id="shapeBtn">测试形状不匹配</button>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>输入 (28×28)</h2>
+      <canvas id="inputCanvas" class="viz viz-square"></canvas>
+      <div id="prediction" class="prediction">尚未推理</div>
+    </div>
+    <div class="panel">
+      <h2>池化特征图 (4×14×14)</h2>
+      <canvas id="mapsCanvas" class="viz viz-wide"></canvas>
+    </div>
+    <div class="panel">
+      <h2>输出概率 (10 类)</h2>
+      <canvas id="probsCanvas" class="viz viz-wide"></canvas>
+    </div>
+    <div class="panel">
+      <h2>性能对照</h2>
+      <canvas id="perfCanvas" class="viz viz-wide"></canvas>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>日志</h2>
+    <div id="log" class="log"></div>
+  </section>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
