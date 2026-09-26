@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebNN 推理演示 · FC / Conv / Pooling</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header>
+    <h1>WebNN 神经网络推理演示</h1>
+    <p class="subtitle">
+      Conv → ReLU → MaxPool → Conv → ReLU → AvgPool → FC(GEMM) ｜
+      WebNN / WebGPU / 纯 JS 三后端性能对照 ｜ 推理在 Web Worker 中执行
+    </p>
+  </header>
+
+  <section class="panel controls">
+    <label>后端
+      <select id="backend-select">
+        <option value="webnn" selected>WebNN (GPU)</option>
+        <option value="webgpu">WebGPU</option>
+        <option value="js">Pure JS</option>
+      </select>
+    </label>
+    <button id="run-btn">运行推理</button>
+    <button id="bench-btn">性能对比</button>
+    <label>迭代次数
+      <input id="iterations" type="number" value="50" min="5" max="500">
+    </label>
+    <button id="probe-btn">检测算子支持</button>
+    <button id="badshape-btn">测试形状不匹配</button>
+    <label class="checkbox">
+      <input id="fail-toggle" type="checkbox"> 模拟推理失败（演示重试与降级）
+    </label>
+    <div class="status-row">
+      <span id="status">初始化…</span>
+      <span id="longtask-status">主线程长任务: 0 次</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>推理结果</h2>
+    <div id="result-info" class="muted">尚未运行</div>
+    <div class="canvas-row">
+      <div>
+        <h3>输入 [1,1,28,28]</h3>
+        <canvas id="input-canvas" width="140" height="140"></canvas>
+      </div>
+      <div class="grow">
+        <h3>FC 输出 [1,10]（高亮为 argmax）</h3>
+        <canvas id="output-canvas" width="560" height="140"></canvas>
+      </div>
+    </div>
+    <h3>中间特征图</h3>
+    <canvas id="feature-canvas" width="960" height="560"></canvas>
+  </section>
+
+  <section class="panel">
+    <h2>性能对比（越低越好）</h2>
+    <canvas id="bench-canvas" width="960" height="180"></canvas>
+    <h3>PerformanceObserver 计时（来自 Worker）</h3>
+    <table class="perf">
+      <thead><tr><th>阶段</th><th>耗时</th></tr></thead>
+      <tbody id="perf-table"></tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>日志</h2>
+    <div id="log" class="log"></div>
+  </section>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
